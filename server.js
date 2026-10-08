@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import worker from "./index.js";
+import { redactUrl } from "./core/security.js";
 
 const PORT  = Number(process.env.PORT) || 4000;
 const BASE  = process.env.BASE_PATH ?? "";
@@ -48,7 +49,7 @@ async function nodeToRequest(req) {
 }
 
 const server = http.createServer(async (req, res) => {
-  console.log(`→ ${req.method} ${req.url}`);
+  console.log(`→ ${req.method} ${redactUrl(req.url)}`);
 
   const pathname = req.url.split("?")[0];
   const staticEntry = STATIC[pathname];

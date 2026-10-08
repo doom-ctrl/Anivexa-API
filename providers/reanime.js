@@ -243,7 +243,8 @@ async function handleWatch3(anilistId, audio, epNum, origin) {
   try {
     resolved = await resolveStream3(anilistId, audio, ep);
   } catch (e) {
-    return json3({ error: e.message, "Raw-ERROR": e.rawBody ?? null, stack: e.stack }, e.status ?? 500);
+    console.error("[watch:reanime]", e.stack ?? e.message);
+    return json3({ error: e.message, "Raw-ERROR": e.rawBody ?? null }, e.status ?? 500);
   }
   const { title: title2, slug, watchData, stream, server, servers, streams, failedServers } = resolved;
   const seenStreamUrls = new Set();
@@ -298,7 +299,8 @@ async function handleStream3(anilistId, audio, epNum) {
   try {
     resolved = await resolveStream3(anilistId, audio, ep);
   } catch (e) {
-    return json3({ error: e.message, "Raw-ERROR": e.rawBody ?? null, stack: e.stack }, e.status ?? 500);
+    console.error("[stream:reanime]", e.stack ?? e.message);
+    return json3({ error: e.message, "Raw-ERROR": e.rawBody ?? null }, e.status ?? 500);
   }
   return new Response(null, {
     status: 302,
@@ -328,7 +330,8 @@ var reanime_default = {
       if (m) return await handleStream3(m[1], m[2], m[3]);
       return json3({ error: "Not found", routes: ["GET /episodes/:anilistId", "GET /watch/:anilistId/sub|dub/:ep", "GET /stream/:anilistId/sub|dub/:ep"] }, 404);
     } catch (err) {
-      return json3({ error: err.message, "Raw-ERROR": err.rawBody ?? null, ...err.debug ? { debug: err.debug } : {}, stack: err.stack }, 500);
+      console.error("[reanime]", err.stack ?? err.message);
+      return json3({ error: err.message, "Raw-ERROR": err.rawBody ?? null, ...err.debug ? { debug: err.debug } : {} }, 500);
     }
   }
 };

@@ -32,7 +32,7 @@ const IS_LOCAL_NODE = (() => {
 
 const UPSTASH_REDIS_REST_URL = readEnv("UPSTASH_REDIS_REST_URL") ?? ""; //get it from upstash.com
 const UPSTASH_REDIS_REST_TOKEN = readEnv("UPSTASH_REDIS_REST_TOKEN") ?? "";
-const REDIS_ENABLED = Boolean(UPSTASH_REDIS_REST_URL && UPSTASH_REDIS_REST_TOKEN);
+export const REDIS_ENABLED = Boolean(UPSTASH_REDIS_REST_URL && UPSTASH_REDIS_REST_TOKEN);
 
 // DEFAULT_REDIS_TTL is in seconds (default 900s / 15min) — used as the fallback expiry
 // for Redis writes that don't carry their own computed ttl (see redisWrite below).
@@ -46,7 +46,9 @@ function decodeEntry(raw) {
   return JSON.parse(raw, (_, value) => value === "__Infinity__" ? Infinity : value);
 }
 
-async function redisCommand(command) {
+// Exported so the rate limiter reuses the one Upstash REST client instead of
+// standing up a second one. Returns null when Redis is off or the call fails.
+export async function redisCommand(command) {
   if (!REDIS_ENABLED || typeof fetch !== "function") return null;
   const res = await fetch(UPSTASH_REDIS_REST_URL, {
     method: "POST",
