@@ -71,6 +71,43 @@ Two things to know:
 request fans out to the providers, which is how an IP gets blocked, and without Redis the rate
 limiter is per instance.
 
+## Deploying on Cloudflare Workers
+
+The worker's entry is already the shape Workers expects (`export default { async fetch }`), so there
+is no adapter and no rewrite: `wrangler.toml` sets `main = "index.js"` and `nodejs_compat`, and
+Workers invokes the worker with the real request URL.
+
+```bash
+bun add -g wrangler        # or: npm i -g wrangler
+wrangler login             # or export CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
+wrangler secret put API_TOKEN
+wrangler secret put UPSTASH_REDIS_REST_URL      # optional: the shared cache and rate limit
+wrangler secret put UPSTASH_REDIS_REST_TOKEN
+wrangler deploy
+```
+
+`ALLOW_ANONYMOUS`, `ALLOWED_PROVIDERS` and `CACHE_ENABLED` live in `wrangler.toml`. Worker-local
+secrets belong in `.dev.vars`, which is gitignored.
+
+What does not carry over: MKissa and Senshi use `wreq-js`, a native addon, which cannot run on Workers
+— both are outside `ALLOWED_PROVIDERS` and `core/wreq.js` imports it lazily, so nothing breaks. AniDB
+App writes a cookie jar to `/tmp`, which does not exist there; also outside the allowlist. The disk
+cache is skipped by name (`IS_WORKER` in `core/smartcache.js`), leaving Upstash as the only cache tier.
+
+Three things to know before trusting a Workers deployment:
+
+- **The free plan allows 10 ms of CPU per request** (100,000 a day). Decoding a manifest and
+  unwrapping segments can exceed that; the paid plan raises the ceiling to 30 seconds.
+- **Egress is the open question, exactly as it was on Vercel.** Workers run in the colo nearest the
+  caller, so a request made from a machine in Australia leaves from an Australian Cloudflare IP — a
+  different range from Vercel's `us-east-1`. The measurement has to be made again rather than
+  assumed: deploy, then compare `/episodes/reanime/anizone/aniwaves/16498` against a local instance.
+  If the providers answer, Workers is the better host; if they answer "no confirmed match" the way
+  they do from Vercel, no cloud fixes it.
+- **Watch the build for `wreq-js`:** `wrangler deploy --dry-run` reports whether the bundler is happy
+  with the lazy `import("wreq-js")`. If it complains about the native binding, map it to a stub with
+  an `[alias]` in `wrangler.toml`, or drop those two providers.
+
 ## How to verify
 
 From a machine that is not the server (or with `curl` against a preview deployment):

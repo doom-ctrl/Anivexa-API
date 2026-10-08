@@ -1,0 +1,18 @@
+name = "anivexa-api"
+main = "index.js"
+compatibility_date = "2026-10-01"
+# The worker reaches Buffer, process.env and node:crypto. Cloudflare's Node compatibility layer
+# supplies them; the filesystem it does not, which core/smartcache.js guards against by name.
+compatibility_flags = ["nodejs_compat"]
+
+# Non-secret configuration. Secrets go in with `wrangler secret put <NAME>`:
+#   API_TOKEN, UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN
+[vars]
+ALLOW_ANONYMOUS = "false"
+ALLOWED_PROVIDERS = "reanime,anizone,aniwaves"
+CACHE_ENABLED = "false"
+
+# The local Node adapter (server.js) is not deployed: Workers invokes index.js directly, because it
+# already exports a Web-standard fetch handler.
+[observability]
+enabled = true

@@ -5,3 +5,5 @@ providers/2dhive.js
 extractors/babastream.js
 .vercel
 .env*
+.wrangler
+.dev.vars
