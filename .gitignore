@@ -3,3 +3,5 @@ node_modules/
 core/.cache/
 providers/2dhive.js
 extractors/babastream.js
+.vercel
+.env*
