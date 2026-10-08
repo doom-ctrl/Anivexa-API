@@ -367,6 +367,10 @@ export default {
     // OPTIONS is the only request served without a token, and it returns no data.
     if (request.method === "OPTIONS") return preflightResponse(cfg);
 
+    // Liveness for platform health checks, which cannot carry credentials. It answers before the
+    // token check on purpose and says nothing a caller does not already know.
+    if (url.pathname === "/health") return json({ ok: true });
+
     const authFailure = authorize(request, cfg);
     if (authFailure) return finalize(authFailure, url.pathname, cfg);
 

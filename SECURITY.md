@@ -108,6 +108,39 @@ Three things to know before trusting a Workers deployment:
   with the lazy `import("wreq-js")`. If it complains about the native binding, map it to a stub with
   an `[alias]` in `wrangler.toml`, or drop those two providers.
 
+## Deploying on Render
+
+Render runs a long-lived Node process, which is the shape this API was written for: `server.js` is the
+entry point, Render supplies `PORT`, and there is no adapter, no path rewriting and no CPU-time
+ceiling. The disk cache and `/tmp` (AniDB App's cookie jar) both work, and `wreq-js` installs its Linux
+binding, so MKissa can work there too.
+
+`render.yaml` sets all of this up; the dashboard equivalents are:
+
+| Setting | Value |
+|---|---|
+| Build command | `npm install` |
+| Start command | `npm start` (`package.json` runs `node server.js`) |
+| Health check path | `/health` — token-free and returns `{"ok": true}`. Pointing it at `/home` would report the service unhealthy, because every data route requires the token |
+| Environment | `API_TOKEN` (required, secret), `ALLOW_ANONYMOUS=false`, `ALLOWED_PROVIDERS=reanime,anizone,aniwaves`, plus `CACHE_ENABLED=true` and the two Upstash values for caching and a shared rate limit |
+
+Two platform facts worth knowing: the **free instance spins down when idle** (Render documents around
+15 minutes) and pays a cold start on the next request, so a client's first call after a gap can time
+out; and the free filesystem is **ephemeral**, so the disk cache is empty after every restart. A paid
+instance fixes both.
+
+**Egress is the thing to measure, not assume.** Render is a datacenter host like the two that failed
+before it, so treat it as unknown until checked. Once the service is live:
+
+```bash
+curl -s -H "Authorization: Bearer $API_TOKEN"   "https://<service>.onrender.com/episodes/reanime/anizone/aniwaves/16498"
+```
+
+Compare that against the same call to a local instance. Providers answering means Render's IPs are
+clean for them and this is the host to use. `"No data found"` or `"no confirmed match"` means the
+range is refused like Cloudflare's and Vercel's, and the remaining option is to keep the API where the
+egress already works (a local instance, or a VPS whose IP is clean) and expose it through a tunnel.
+
 ## How to verify
 
 From a machine that is not the server (or with `curl` against a preview deployment):
