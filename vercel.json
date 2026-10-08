@@ -1,6 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
+    "index.js": {
+      "maxDuration": 60,
+      "includeFiles": "node_modules/@wreq-js/binding-linux-x64-gnu/**"
+    },
     "api/index.js": {
       "maxDuration": 60,
       "includeFiles": "node_modules/@wreq-js/binding-linux-x64-gnu/**"

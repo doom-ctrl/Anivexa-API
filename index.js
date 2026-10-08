@@ -339,9 +339,29 @@ async function route(request, env, cfg) {
   return json(homePayload());
 }
 
+const FORWARDED_PATH_PARAM = "__anivexa_path";
+
+/**
+ * A rewrite replaces the path a function sees, so vercel.json forwards the original pathname in
+ * `__anivexa_path`. Vercel's Node preset invokes this worker directly as the route handler, so the
+ * restore has to happen here, before anything reads the URL — an adapter in api/ never runs.
+ * Returns the request unchanged when nothing was forwarded, so local `server.js` requests and any
+ * future rewrite that passes the path through untouched both keep working.
+ */
+function withForwardedPath(request) {
+  const url = new URL(request.url);
+  const forwarded = url.searchParams.get(FORWARDED_PATH_PARAM);
+  if (!forwarded) return request;
+
+  url.searchParams.delete(FORWARDED_PATH_PARAM);
+  url.pathname = forwarded.startsWith("/") ? forwarded : `/${forwarded}`;
+  return new Request(url.toString(), { method: request.method, headers: request.headers });
+}
+
 export default {
   async fetch(request, env) {
     const cfg = getConfig();
+    request = withForwardedPath(request);
     const url = new URL(request.url);
 
     // OPTIONS is the only request served without a token, and it returns no data.

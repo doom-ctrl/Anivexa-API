@@ -31,6 +31,7 @@ export default async function handler(req, res) {
 
   const response = await worker.fetch(request, {});
 
+
   res.statusCode = response.status;
   for (const [k, v] of response.headers) res.setHeader(k, v);
 
