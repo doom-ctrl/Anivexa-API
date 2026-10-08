@@ -20,9 +20,16 @@ function envInt(name, fallback) {
 // change CACHE_ENABLED=true in .env and set your upstash credentials to enable caching
 export const _CACHE_ENABLED = envBool("CACHE_ENABLED", false);
 
+// Cloudflare Workers have no filesystem, but their Node compatibility layer makes `process` look
+// like Node's, so the only reliable test is the runtime's own marker. Without this the disk tier is
+// entered at import time and its `await import("node:fs")` would take the whole worker down.
+const IS_WORKER =
+  typeof navigator !== "undefined" && /Cloudflare-Workers/i.test(String(navigator.userAgent ?? ""));
+
 const IS_LOCAL_NODE = (() => {
   try {
     return (
+      !IS_WORKER &&
       typeof process !== "undefined" &&
       typeof process.versions?.node === "string" &&
       !process.env.VERCEL
