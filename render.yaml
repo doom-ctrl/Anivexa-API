@@ -1,0 +1,25 @@
+# Render blueprint for Anivexa. Point Render at this repo and it applies these settings; the two
+# values marked sync: false are secrets entered in the dashboard, never committed.
+services:
+  - type: web
+    name: anivexa-api
+    runtime: node
+    plan: free
+    # No build step: the API runs straight from source. Render supplies PORT and server.js reads it.
+    buildCommand: npm install
+    startCommand: npm start
+    # Every data route needs the bearer token, so the health check uses the one token-free route.
+    healthCheckPath: /health
+    envVars:
+      - key: ALLOW_ANONYMOUS
+        value: "false"
+      - key: ALLOWED_PROVIDERS
+        value: reanime,anizone,aniwaves
+      - key: CACHE_ENABLED
+        value: "false"
+      - key: API_TOKEN
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false
