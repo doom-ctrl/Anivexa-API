@@ -352,7 +352,8 @@ export default {
       if (m) return await handleWatch(m[1], m[2], m[3]);
       return json({ error: "Not found" }, 404);
     } catch (err) {
-      return json({ error: err.message, "Raw-ERROR": err.rawBody ?? null, stack: err.stack }, 500);
+      console.error("[watch:anidbapp]", err.stack ?? err.message);
+      return json({ error: err.message, "Raw-ERROR": err.rawBody ?? null }, 500);
     }
   },
 };

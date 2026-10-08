@@ -558,7 +558,8 @@ export default {
       }
       return jsonResponse({ error: "Not found" }, 404);
     } catch (err) {
-      return jsonResponse({ error: err.message, stack: err.stack }, 500);
+      console.error("[watch:anikoto]", err.stack ?? err.message);
+      return jsonResponse({ error: err.message }, 500);
     }
   }
 };

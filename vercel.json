@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 60,
+      "includeFiles": "node_modules/@wreq-js/binding-linux-x64-gnu/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/map/:path*", "destination": "/api/index?__anivexa_path=/map/:path*" },
+    { "source": "/episodes/:path*", "destination": "/api/index?__anivexa_path=/episodes/:path*" },
+    { "source": "/watch/:path*", "destination": "/api/index?__anivexa_path=/watch/:path*" },
+    { "source": "/stream/:path*", "destination": "/api/index?__anivexa_path=/stream/:path*" },
+    { "source": "/captcha/:path*", "destination": "/api/index?__anivexa_path=/captcha/:path*" },
+    { "source": "/home", "destination": "/api/index?__anivexa_path=/home" },
+    { "source": "/", "destination": "/api/index?__anivexa_path=/" }
+  ]
+}

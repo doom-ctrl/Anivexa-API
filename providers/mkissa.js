@@ -1721,7 +1721,8 @@ const mkissaDefault = {
     } catch (err) {
       const status = err.code === "NEED_CAPTCHA" ? 403 : 500;
       const solveUrl = route.handler === "watch" ? `/captcha/mkissa?next=${encodeURIComponent(url.pathname)}` : null;
-      return json({ error: err.message, code: err.code ?? null, captcha: err.code === "NEED_CAPTCHA" ? { endpoint: `${API.replace(/\/$/, "")}/captcha/turnstile`, provider: "turnstile", tokenQuery: "captchaToken", tokenHeader: "x-captcha-token", solveUrl } : null, "Raw-ERROR": err.rawBody ?? null, stack: err.stack }, status);
+      console.error("[watch:mkissa]", err.stack ?? err.message);
+      return json({ error: err.message, code: err.code ?? null, captcha: err.code === "NEED_CAPTCHA" ? { endpoint: `${API.replace(/\/$/, "")}/captcha/turnstile`, provider: "turnstile", tokenQuery: "captchaToken", tokenHeader: "x-captcha-token", solveUrl } : null, "Raw-ERROR": err.rawBody ?? null }, status);
     }
   }
 };

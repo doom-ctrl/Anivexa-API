@@ -400,7 +400,8 @@ export default {
     try {
       return await handleWatch(match[1], match[2], match[3]);
     } catch (error) {
-      return json({ error: error.message, "Raw-ERROR": error.rawBody ?? null, stack: error.stack }, 500);
+      console.error("[watch:animeonsen]", error.stack ?? error.message);
+      return json({ error: error.message, "Raw-ERROR": error.rawBody ?? null }, 500);
     }
   },
 };

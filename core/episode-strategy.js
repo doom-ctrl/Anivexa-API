@@ -72,7 +72,7 @@ function orderEpisodeFields(data) {
 
 async function safe(label, fn) {
   try   { return { ok: true,  data: orderEpisodeFields(await fn()) }; }
-  catch (e) { console.error(`[ep:${label}]`, e.message); return { ok: false, error: e.message, stack: e.stack }; }
+  catch (e) { console.error(`[ep:${label}]`, e.stack ?? e.message); return { ok: false, error: e.message }; }
 }
 
 const PROVIDER_ALIASES = {
@@ -130,7 +130,7 @@ export async function buildFilteredEpisodesWithCache(anilistId, providers, media
   const pairs = await Promise.all(
     [...providers].map(async (name) => {
       const result = await safe(name, fns[name]);
-      return [name, result.ok ? result.data : { error: result.error, stack: result.stack }];
+      return [name, result.ok ? result.data : { error: result.error }];
     })
   );
 
@@ -159,19 +159,19 @@ export async function buildEpisodesWithCache(anilistId, media, anizip) {
   ]);
 
   return {
-    mkissa:      mkissa.ok      ? mkissa.data      : { error: mkissa.error,      stack: mkissa.stack },
-    reanime:     reanime.ok     ? reanime.data     : { error: reanime.error,     stack: reanime.stack },
-    anikoto:     anikoto.ok     ? anikoto.data     : { error: anikoto.error,     stack: anikoto.stack },
-    animegg:     animegg.ok     ? animegg.data     : { error: animegg.error,     stack: animegg.stack },
-    anineko:     anineko.ok     ? anineko.data     : { error: anineko.error,     stack: anineko.stack },
-    anidbapp:    anidbapp.ok    ? anidbapp.data    : { error: anidbapp.error,    stack: anidbapp.stack },
-    animenosub:  animenosub.ok  ? animenosub.data  : { error: animenosub.error,  stack: animenosub.stack },
-    anizone:     anizone.ok     ? anizone.data     : { error: anizone.error,     stack: anizone.stack },
-    aniwaves:    aniwaves.ok    ? aniwaves.data    : { error: aniwaves.error,    stack: aniwaves.stack },
-    anibd:       anibd.ok       ? anibd.data       : { error: anibd.error,       stack: anibd.stack },
-    senshi:      senshi.ok      ? senshi.data      : { error: senshi.error,      stack: senshi.stack },
-    kaa:         kaa.ok         ? kaa.data         : { error: kaa.error,         stack: kaa.stack },
-    animedunya:  animedunya.ok  ? animedunya.data  : { error: animedunya.error,  stack: animedunya.stack },
-    animeonsen:  animeonsen.ok  ? animeonsen.data  : { error: animeonsen.error,  stack: animeonsen.stack },
+    mkissa:      mkissa.ok      ? mkissa.data      : { error: mkissa.error },
+    reanime:     reanime.ok     ? reanime.data     : { error: reanime.error },
+    anikoto:     anikoto.ok     ? anikoto.data     : { error: anikoto.error },
+    animegg:     animegg.ok     ? animegg.data     : { error: animegg.error },
+    anineko:     anineko.ok     ? anineko.data     : { error: anineko.error },
+    anidbapp:    anidbapp.ok    ? anidbapp.data    : { error: anidbapp.error },
+    animenosub:  animenosub.ok  ? animenosub.data  : { error: animenosub.error },
+    anizone:     anizone.ok     ? anizone.data     : { error: anizone.error },
+    aniwaves:    aniwaves.ok    ? aniwaves.data    : { error: aniwaves.error },
+    anibd:       anibd.ok       ? anibd.data       : { error: anibd.error },
+    senshi:      senshi.ok      ? senshi.data      : { error: senshi.error },
+    kaa:         kaa.ok         ? kaa.data         : { error: kaa.error },
+    animedunya:  animedunya.ok  ? animedunya.data  : { error: animedunya.error },
+    animeonsen:  animeonsen.ok  ? animeonsen.data  : { error: animeonsen.error },
   };
 }

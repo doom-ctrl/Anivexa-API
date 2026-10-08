@@ -513,7 +513,8 @@ export default {
       if (match) return await handleWatch(match[1], match[2], match[3]);
       return json({ error: "Not found" }, 404);
     } catch (error) {
-      return json({ error: error.message, "Raw-ERROR": error.rawBody ?? null, stack: error.stack }, 500);
+      console.error("[watch:anizone]", error.stack ?? error.message);
+      return json({ error: error.message, "Raw-ERROR": error.rawBody ?? null }, 500);
     }
   },
 };
